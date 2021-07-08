@@ -1,9 +1,10 @@
-version: "3.9"
+version: "3.8"
 services:
   nginx:
     container_name: nginx
     build: requirements/nginx
-	  depends_on: wordpress
+    depends_on:
+      - wordpress
     ports:
       - "443:443"
     restart: always
@@ -13,7 +14,7 @@ services:
     container_name: mariadb
     build: requirements/mariadb
     volumes:
-        - ./mariadb/tools/volumes:/var/lib/mysql
+        - ./requirements/mariadb/tools/volumes:/var/lib/mysql
     restart: always
     networks:
         - common
@@ -21,9 +22,10 @@ services:
     container_name: wordpress
     build: requirements/wordpress
     volumes:
-      - ./wordpress/tools/volumes:/var/www/html
+      - ./requirements/wordpress/tools/volumes:/var/www/html
     restart: always
-    depends_on: mariadb
+    depends_on:
+      - mariadb
     networks:
       - common
 networks: 
