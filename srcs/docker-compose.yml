@@ -1,10 +1,14 @@
-version: "3.8"
+version: "3.9"
 services:
   nginx:
     container_name: nginx
-    build: requirements/nginx
+    build: nginx
+    volumes:
+      - type: volume
+        source: wp_data
+        target: /opt/wordpress
     depends_on:
-      - wordpress
+      - mariadb
     ports:
       - "443:443"
     restart: always
@@ -12,22 +16,38 @@ services:
       - common
   mariadb:
     container_name: mariadb
-    build: requirements/mariadb
-    volumes:
-        - ./requirements/mariadb/tools/volumes:/var/lib/mysql
+    build: mariadb
     restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     networks:
-        - common
+      - common
   wordpress:
     container_name: wordpress
-    build: requirements/wordpress
+    build: wordpress
     volumes:
-      - ./requirements/wordpress/tools/volumes:/var/www/html
+      - type: bind
+        source: ./wordpress/tools/wp-config.php
+        target: /opt/wordpress/wp-config.php
+      - type: volume
+        source: wp_data
+        target: /opt/wordpress
+    # volumes:
+    #  - ./wordpress/volumes:/opt/wordpress
     restart: always
+    ports:
+      - "9000:9000"
+    
     depends_on:
-      - mariadb
+       - nginx
     networks:
       - common
 networks: 
   common:
     driver: bridge
+volumes:
+  wp_data:
+    # source: ./wordpress/volumes

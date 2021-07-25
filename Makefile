@@ -5,3 +5,6 @@ run:
 
 down:
 	$(dc) down
+
+build:
+	$(dc) build
